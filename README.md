@@ -5,6 +5,7 @@
 <div align="center">
 
 [![Version](https://img.shields.io/badge/version-7.4.0-06b6d4?style=flat-square)](package.json)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-YYC3_Borderless_Holographic_AI_Nexus-181717?style=flat-square&logo=github)](https://github.com/YYC-Cube/YYC3-Borderless-Holographic-AI-Nexus)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61dafb?style=flat-square&logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-646cff?style=flat-square&logo=vite)](https://vitejs.dev/)
@@ -13,7 +14,9 @@
 [![shadcn/ui](https://img.shields.io/badge/shadcn/ui-latest-black?style=flat-square)](https://ui.shadcn.com/)
 [![Radix UI](https://img.shields.io/badge/Radix_UI-primitives-161618?style=flat-square&logo=radixui)](https://www.radix-ui.com/)
 [![ESLint](https://img.shields.io/badge/ESLint-0_errors_0_warnings-4b32c3?style=flat-square&logo=eslint)](https://eslint.org/)
-[![License](https://img.shields.io/badge/license-Private-red?style=flat-square)](LICENSE)
+[![Deploy](https://img.shields.io/badge/Deploy-zero.yyc3.top-06b6d4?style=flat-square)](https://zero.yyc3.top)
+[![CI/CD](https://img.shields.io/badge/CI/CD-GitHub_Actions-2088FF?style=flat-square&logo=githubactions)](.github/workflows/deploy.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 
 </div>
 
@@ -23,6 +26,8 @@
 
 **YYC³ (YanYu Cloud Cube) Borderless Holographic AI Nexus** 是一个基于「去界面化 (Zero UI)」和「无边界 (Borderless)」设计理念构建的下一代 AI 助手。它摒弃了传统的按钮和菜单，采用**手势、语音和 3D 视觉反馈**作为核心交互手段，旨在探索未来数字生命的交互形态。
 
+> **仓库地址**: [https://github.com/YYC-Cube/YYC3-Borderless-Holographic-AI-Nexus](https://github.com/YYC-Cube/YYC3-Borderless-Holographic-AI-Nexus)
+> **部署地址**: [https://zero.yyc3.top](https://zero.yyc3.top)
 > **综合评分**: 90/100 — 五高架构 | 五标准体系 | 五维度驱动
 
 ### 核心特性
@@ -41,6 +46,96 @@
 
 ---
 
+## 架构可视化
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        YYC³ 系统架构                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐   │
+│  │  Gesture     │  │  Voice       │  │  Keyboard            │   │
+│  │  Input       │  │  Input       │  │  Input               │   │
+│  │  (8-dir)     │  │  (Web API)   │  │  (Shortcuts)         │   │
+│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘   │
+│         │                 │                      │               │
+│         └─────────────────┼──────────────────────┘               │
+│                           │                                      │
+│                    ┌──────▼──────┐                               │
+│                    │  useUIState │  ◄── 统一状态管理              │
+│                    │  (Reducer)  │                               │
+│                    └──────┬──────┘                               │
+│                           │                                      │
+│         ┌─────────────────┼─────────────────┐                    │
+│         │                 │                 │                    │
+│  ┌──────▼──────┐  ┌──────▼──────┐  ┌──────▼──────┐             │
+│  │  useAI      │  │  useSpeech  │  │  useGaze    │             │
+│  │  (LLM/Mem)  │  │  (STT/TTS)  │  │  (EyeTrack) │             │
+│  └──────┬──────┘  └──────┬──────┘  └─────────────┘             │
+│         │                 │                                      │
+│  ┌──────▼─────────────────▼──────┐                               │
+│  │        AI Engine Layer        │                               │
+│  │  ┌──────┐ ┌──────┐ ┌───────┐ │                               │
+│  │  │ LLM  │ │ RAG  │ │ Cloud │ │                               │
+│  │  │(8 PV)│ │(LRU) │ │(Sync) │ │                               │
+│  │  └──────┘ └──────┘ └───────┘ │                               │
+│  │  ┌──────┐ ┌──────┐ ┌───────┐ │                               │
+│  │  │ DAG  │ │ Gen  │ │ Char  │ │                               │
+│  │  │Engine│ │(4-M) │ │(3-C)  │ │                               │
+│  │  └──────┘ └──────┘ └───────┘ │                               │
+│  └───────────────────────────────┘                               │
+│                           │                                      │
+│  ┌────────────────────────▼────────────────────────┐             │
+│  │              Component Layer                      │             │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │             │
+│  │  │ Cube     │ │ Globe    │ │ Voice            │ │             │
+│  │  │ Visual   │ │ Visual   │ │ Visualizer       │ │             │
+│  │  └──────────┘ └──────────┘ └──────────────────┘ │             │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │             │
+│  │  │ Config   │ │ Terminal │ │ Debate           │ │             │
+│  │  │ Panel    │ │ Panel    │ │ Overlay          │ │             │
+│  │  └──────────┘ └──────────┘ └──────────────────┘ │             │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │             │
+│  │  │ Orbital  │ │ AI Gen   │ │ Intelligent      │ │             │
+│  │  │ Menu     │ │ Panel    │ │ Center           │ │             │
+│  │  └──────────┘ └──────────┘ └──────────────────┘ │             │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │             │
+│  │  │ TaskPod  │ │ Workflow │ │ MCP Server       │ │             │
+│  │  │          │ │ Editor   │ │ Manager          │ │             │
+│  │  └──────────┘ └──────────┘ └──────────────────┘ │             │
+│  └─────────────────────────────────────────────────┘             │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │              UI Foundation (shadcn/ui + Radix)               │ │
+│  │  48 组件 · 无障碍 · WAI-ARIA · 键盘导航 · 深色模式            │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 数据流
+
+```
+用户输入 (手势/语音/键盘)
+    │
+    ▼
+ResponsiveAIAssistant (主控制器)
+    │
+    ├──► useAI.processMessage()
+    │       │
+    │       ├──► llm.ts (多提供商 → 流式/非流式)
+    │       ├──► rag.ts (Embedding → 语义检索)
+    │       └──► cloud.ts (Push/Pull 同步)
+    │
+    ├──► useSpeech (Web Speech API / TTS)
+    │
+    └──► Component Layer (CubeVisual / GlobeVisual / VoiceVisualizer)
+            │
+            ▼
+        视觉反馈 (3D 动画 / 粒子 / 波形)
+```
+
+---
+
 ## 技术栈
 
 | 类别 | 技术 | 说明 |
@@ -52,23 +147,30 @@
 | 动画 | Motion (Framer Motion) | 弹簧物理动画 |
 | 图标 | Lucide React | 一致的图标系统 |
 | UI 组件 | shadcn/ui + Radix UI | 48 个 UI 组件 |
-| 状态管理 | React Hooks + localStorage | useAI/useSpeech/useGaze |
-| 测试 | Vitest | 单元测试 |
+| 状态管理 | React Hooks + useReducer | useAI/useSpeech/useGaze |
+| 单元测试 | Vitest | 快如闪电的测试运行器 |
+| E2E 测试 | Playwright | 多浏览器端到端测试 |
 | 代码质量 | ESLint 9 + TypeScript strict | 0 错误 0 警告 |
 | AI 集成 | Web Speech API + Fetch API | 多提供商 LLM |
 | 数据库 | Supabase (PostgreSQL) | 可选云同步后端 |
+| 国际化 | i18n | 10 语言支持 |
+| CI/CD | GitHub Actions | 自动化构建/测试/部署 |
+| PWA | Service Worker | 离线缓存 + 安装到桌面 |
 
 ---
 
-## 项目架构
+## 项目结构
 
 ```
 YYC³ Borderless Holographic AI Nexus/
 ├── App.tsx                         # 应用入口
 ├── index.html                      # Vite HTML 入口
 ├── vite.config.ts                  # Vite 构建配置
+├── tsconfig.json                   # TypeScript 配置
+├── sw.js                           # Service Worker (PWA 缓存)
+├── .env.example                    # 环境变量模板
 ├── components/
-│   ├── ResponsiveAIAssistant.tsx   # ★ 主控制器 (850+ 行)
+│   ├── ResponsiveAIAssistant.tsx   # ★ 主控制器 (~650 行)
 │   ├── YYC3Background.tsx          # ASCII 艺术背景
 │   ├── ai/                        # 核心 AI 功能 (16 个组件)
 │   │   ├── ConfigPanel.tsx         #   模型/语音/角色/云同步配置
@@ -95,22 +197,27 @@ YYC³ Borderless Holographic AI Nexus/
 ├── hooks/
 │   ├── useAI.ts                   # ★ AI 核心逻辑 (消息/记忆/云同步/指令)
 │   ├── useSpeech.ts               # 语音识别 + TTS + 音频可视化
-│   └── useGaze.ts                 # 注视感知 (模拟眼动追踪)
+│   ├── useUIState.ts              # 统一面板状态管理 (useReducer)
+│   ├── useGaze.ts                 # 注视感知 (模拟眼动追踪)
+│   ├── useKeyboardShortcuts.ts    # 键盘快捷键逻辑
+│   └── useGestureHandler.tsx      # 手势处理逻辑
 ├── utils/
 │   ├── llm.ts                     # LLM 引擎 (多提供商/流式/重试/fallback)
 │   ├── rag.ts                     # RAG 记忆 (Embedding + LRU 缓存)
 │   ├── cloud.ts                   # 云同步 (Push/Pull + 混合内容检测)
 │   ├── dag-engine.ts              # DAG 工作流引擎
 │   ├── generation.ts              # 多模态生成 (图片/视频/音频)
-│   ├── validation.ts             # 输入验证 (三层)
+│   ├── validation.ts              # 输入验证 (三层)
 │   ├── character.ts               # 角色预设 (3 角色)
 │   ├── model-presets.ts           # 模型预设库 (10+ 预设)
 │   └── design-system.ts           # 统一设计令牌
 ├── types/                         # 类型定义
 ├── lib/supabase.ts                # Supabase 数据库客户端
+├── src/i18n/                      # 国际化 (10 语言)
+├── tests/                         # E2E 测试 (Playwright)
 ├── styles/globals.css             # 全局样式 (Tailwind v4)
 ├── public/yyc3-icons/             # 全端图标 (favicon/PWA/iOS/Android)
-└── sw.js                          # Service Worker (PWA 缓存)
+└── .github/workflows/             # CI/CD 自动化部署
 ```
 
 ---
@@ -125,8 +232,15 @@ YYC³ Borderless Holographic AI Nexus/
 ### 安装与启动
 
 ```bash
+# 克隆仓库
+git clone git@github.com:YYC-Cube/YYC3-Borderless-Holographic-AI-Nexus.git
+cd YYC3-Borderless-Holographic-AI-Nexus
+
 # 安装依赖
 pnpm install
+
+# 配置环境变量 (可选)
+cp .env.example .env
 
 # 启动开发服务器
 pnpm dev
@@ -152,6 +266,10 @@ ollama pull llama3
 OLLAMA_ORIGINS="*" ollama serve
 ```
 
+---
+
+## 开发指南
+
 ### 代码质量
 
 ```bash
@@ -161,9 +279,38 @@ pnpm typecheck
 # ESLint 检查
 pnpm lint
 
-# 运行测试
+# 运行单元测试
 pnpm test
+
+# 运行 E2E 测试
+pnpm test:e2e
+
+# E2E 测试 (可视化模式)
+pnpm test:e2e:ui
 ```
+
+### 测试
+
+| 测试类型 | 命令 | 框架 | 说明 |
+|:---|:---|:---|:---|
+| 类型检查 | `pnpm typecheck` | TypeScript | 0 类型错误 |
+| 代码规范 | `pnpm lint` | ESLint 9 | 0 错误 0 警告 |
+| 单元测试 | `pnpm test` | Vitest | 组件 + Hook 测试 |
+| E2E 测试 | `pnpm test:e2e` | Playwright | 10 测试用例，多浏览器 |
+
+### 项目脚本
+
+| 脚本 | 说明 |
+|:---|:---|
+| `pnpm dev` | 启动开发服务器 (HMR) |
+| `pnpm build` | 类型检查 + 生产构建 |
+| `pnpm preview` | 预览生产构建 |
+| `pnpm typecheck` | TypeScript 类型检查 |
+| `pnpm lint` | ESLint 代码规范检查 |
+| `pnpm test` | 运行 Vitest 单元测试 |
+| `pnpm test:watch` | 监听模式单元测试 |
+| `pnpm test:e2e` | 运行 Playwright E2E 测试 |
+| `pnpm test:e2e:ui` | Playwright 可视化测试 |
 
 ---
 
@@ -229,34 +376,81 @@ AI 可通过 `[[CMD:指令]]` 令牌控制界面：
 
 ---
 
-## 相关文档
+## CI/CD 自动化部署
 
-| 文档 | 路径 |
-|:---|:---|
-| 操作手册 | [OPERATION_MANUAL.md](OPERATION_MANUAL.md) |
-| AI Agent 指南 | [AGENTS.md](AGENTS.md) |
-| 项目路线图 | [ROADMAP.md](ROADMAP.md) |
-| HTTPS 配置指南 | [HTTPS_GUIDE.md](HTTPS_GUIDE.md) |
-| API 设计文档 | [docs/API_DESIGN.md](docs/API_DESIGN.md) |
-| 功能验收报告 | [docs/YYC3-团队通用-标准规范/YYC3-项目闭环-验收报告/](docs/YYC3-团队通用-标准规范/YYC3-项目闭环-验收报告/) |
-| 团队标准规范 | [docs/YYC3-团队通用-标准规范/](docs/YYC3-团队通用-标准规范/) |
+本项目通过 GitHub Actions 实现自动化 CI/CD，推送到 `main` 分支后自动执行：
+
+| 阶段 | 命令 | 说明 |
+|:---|:---|:---|
+| Setup | — | pnpm + Node.js 环境准备 |
+| Type Check | `pnpm typecheck` | TypeScript 类型检查 |
+| Lint | `pnpm lint` | ESLint 代码规范检查 |
+| Test | `pnpm test` | Vitest 单元测试 |
+| Build | `pnpm build` | Vite 生产构建 |
+| Deploy | GitHub Pages | 自动部署到 `zero.yyc3.top` |
+
+> 工作流配置: [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
 
 ---
 
 ## 验收状态
 
-- TypeScript 类型检查：**0 错误**
-- ESLint 检查：**0 错误 0 警告**
-- 核心 AI 对话：**完整实现**
-- 流式响应 (SSE)：**完整实现**
-- 语音交互：**完整实现（含降级方案）**
-- 手势导航：**完整实现（8 方向 + 双击 + 长按）**
-- 键盘快捷键：**完整实现**
-- 多模态生成：**完整实现（Text/Image/Audio/Video）**
-- DAG 工作流引擎：**完整实现**
-- 综合评分：**90/100**
+| 验收项 | 状态 | 说明 |
+|:---|:---|:---|
+| TypeScript 类型检查 | 0 错误 | strict mode |
+| ESLint 检查 | 0 错误 0 警告 | `--max-warnings=0` |
+| 核心 AI 对话 | 完整实现 | 多提供商 + 流式响应 |
+| 流式响应 (SSE) | 完整实现 | 自动 fallback |
+| 语音交互 | 完整实现 | 含降级方案 |
+| 手势导航 | 完整实现 | 8 方向 + 双击 + 长按 |
+| 键盘快捷键 | 完整实现 | 5 组快捷键 |
+| 多模态生成 | 完整实现 | Text/Image/Audio/Video |
+| DAG 工作流引擎 | 完整实现 | 拓扑排序 + 循环检测 |
+| 国际化 | 完整实现 | 10 语言 |
+| E2E 测试 | 完整实现 | Playwright 10 tests |
+| CI/CD | 完整实现 | GitHub Actions |
+| 综合评分 | **90/100** | 五高架构 |
+
+---
+
+## 相关文档
+
+| 文档 | 路径 | 说明 |
+|:---|:---|:---|
+| 架构设计 | [ARCHITECTURE.md](ARCHITECTURE.md) | 系统架构可视化与数据流 |
+| 贡献指南 | [CONTRIBUTING.md](CONTRIBUTING.md) | 开发规范与贡献流程 |
+| 变更日志 | [CHANGELOG.md](CHANGELOG.md) | 版本变更记录 |
+| 项目路线图 | [ROADMAP.md](ROADMAP.md) | 开发计划与里程碑 |
+| 操作手册 | [OPERATION_MANUAL.md](OPERATION_MANUAL.md) | 用户操作指南 |
+| AI Agent 指南 | [AGENTS.md](AGENTS.md) | AI Agent 配置说明 |
+| HTTPS 配置 | [HTTPS_GUIDE.md](HTTPS_GUIDE.md) | HTTPS 部署指南 |
+| API 设计文档 | [docs/API_DESIGN.md](docs/API_DESIGN.md) | API 接口设计 |
+| 验收报告 | [docs/YYC3-团队通用-标准规范/YYC3-项目闭环-验收报告/](docs/YYC3-团队通用-标准规范/YYC3-项目闭环-验收报告/) | 功能完整性验收 |
+| 标准规范 | [docs/YYC3-团队通用-标准规范/](docs/YYC3-团队通用-标准规范/) | 团队开发标准 |
+| 属性说明 | [Attributions.md](Attributions.md) | 第三方依赖与属性 |
+
+---
+
+## 贡献
+
+欢迎贡献！请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解开发规范和提交流程。
+
+### 贡献者
+
+本项目由 [YYC-Cube](https://github.com/YYC-Cube) 团队开发和维护。
+
+---
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 开源。
+
+---
+
+## GitHub Topics
+
+`ai-assistant` `zero-ui` `holographic` `3d-visualization` `gesture-control` `voice-interaction` `next-gen-ui` `react` `typescript` `vite` `tailwindcss` `shadcn-ui` `radix-ui` `llm` `multimodal` `dag-workflow` `rag` `pwa` `supabase` `pnpm`
 
 ---
 
 *YYC³ — 言启千行代码，语枢万物智能*
-# YYC3-Borderless-Holographic-AI-Nexus
