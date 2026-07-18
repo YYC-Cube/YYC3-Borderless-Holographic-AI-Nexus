@@ -54,8 +54,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
+      - name: Approve build dependencies
+        run: pnpm approve-builds esbuild
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --config.only-built-dependencies=esbuild
+        run: pnpm install --frozen-lockfile
 
       - name: Type check
         run: pnpm typecheck
