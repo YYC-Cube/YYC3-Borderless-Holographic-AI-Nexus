@@ -17,6 +17,7 @@ concurrency:
 env:
   PNPM_VERSION: 11.10.0
   NODE_VERSION: 22
+  PNPM_ONLY_BUILT_DEPENDENCIES: esbuild
 
 jobs:
   build-and-deploy:
