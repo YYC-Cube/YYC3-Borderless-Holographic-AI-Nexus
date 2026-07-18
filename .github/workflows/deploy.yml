@@ -14,9 +14,14 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  PNPM_VERSION: 11.10.0
+  NODE_VERSION: 22
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -28,13 +33,26 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 11.10.0
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -45,18 +63,26 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Test
+      - name: Unit test
         run: pnpm test
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium --with-deps
 
-      - name: E2E Test
+      - name: E2E test
         run: pnpm test:e2e
         continue-on-error: true
 
       - name: Build
         run: pnpm build
+
+      - name: Verify CNAME
+        run: |
+          if [ -f dist/CNAME ]; then
+            echo "CNAME detected: $(cat dist/CNAME)"
+          else
+            echo "::warning::CNAME not found in dist/, custom domain may not work"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
