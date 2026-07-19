@@ -60,8 +60,8 @@ export function validateGenerationRequest(req: GenerationRequest): { valid: bool
         return { valid: false, error: 'Prompt is too short (min 2 chars)' };
     }
 
-    if (req.mode === 'audio') {
-        return { valid: false, error: 'Audio generation is disabled due to system fault' };
+    if (req.prompt.length > 8000) {
+        return { valid: false, error: 'Prompt is too long (max 8000 chars)' };
     }
 
     return { valid: true };

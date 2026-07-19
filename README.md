@@ -1,4 +1,4 @@
-![YYC³ Borderless Holographic AI Nexus — Family AI](public/Family-AI-001.png)
+![YYC³ Borderless Holographic AI Nexus — Family AI](public/Family-AI.png)
 
 # YYC³ Borderless Holographic AI Nexus
 
@@ -28,11 +28,11 @@
 
 > **仓库地址**: [https://github.com/YYC-Cube/YYC3-Borderless-Holographic-AI-Nexus](https://github.com/YYC-Cube/YYC3-Borderless-Holographic-AI-Nexus)
 > **部署地址**: [https://zero.yyc3.top](https://zero.yyc3.top)
-> **综合评分**: 90/100 — 五高架构 | 五标准体系 | 五维度驱动
+> **综合评分**: 96/100 — 五高架构 | 五标准体系 | 五维度驱动
 
 ### 核心特性
 
-- **全息视觉核心**：3D 动态魔方 (`CubeVisual`)，根据 AI 状态（聆听、思考、说话）实时反馈
+- **全息视觉核心**：3D 动态魔方 (`CubeVisual`) + 全息地球 (`GlobeVisual`) 双主题切换，根据 AI 状态（聆听、思考、说话）实时反馈
 - **Zero UI 交互**：8 方向手势导航 + 长按语音 + 双击环轨菜单 + 键盘快捷键
 - **多模型 AI 引擎**：支持 Ollama / OpenAI / DeepSeek / Moonshot / Zhipu / Yi / Anthropic 共 8 个提供商
 - **流式响应**：SSE 流式响应 + 非流式 fallback + 指数退避自动重试
@@ -172,28 +172,24 @@ YYC³ Borderless Holographic AI Nexus/
 ├── components/
 │   ├── ResponsiveAIAssistant.tsx   # ★ 主控制器 (~650 行)
 │   ├── YYC3Background.tsx          # ASCII 艺术背景
-│   ├── ai/                        # 核心 AI 功能 (16 个组件)
+│   ├── ai/                        # 核心 AI 功能 (13 个组件)
 │   │   ├── ConfigPanel.tsx         #   模型/语音/角色/云同步配置
 │   │   ├── TerminalPanel.tsx       #   文本输入终端
 │   │   ├── DebateOverlay.tsx       #   多角色辩论矩阵
 │   │   ├── OrbitalMenu.tsx         #   环轨手势菜单
 │   │   ├── IntelligentCenter.tsx   #   全息智能中心
-│   │   ├── CubeVisual.tsx          #   3D 魔方可视化
-│   │   ├── GlobeVisual.tsx         #   地球粒子可视化
+│   │   ├── CubeVisual.tsx          #   3D 魔方可视化（默认主题）
+│   │   ├── GlobeVisual.tsx         #   全息地球可视化（P2 已激活，可选主题）
 │   │   ├── VoiceVisualizer.tsx     #   语音波形可视化
 │   │   ├── MultimodalArtifact.tsx  #   多模态产物查看器
 │   │   ├── AIGeneratorPanel.tsx    #   AI 生成器 (Text/Image/Audio/Video)
-│   │   ├── NeuralNetModule.tsx     #   神经网络模块
-│   │   ├── SecurityModule.tsx      #   安全审计模块
-│   │   └── PageSelector.tsx        #   页面选择器
-│   ├── modules/                   # 业务模块 (6 个)
+│   │   ├── NeuralNetModule.tsx     #   神经网络模块（备用主题）
+│   │   └── SecurityModule.tsx      #   安全审计模块
+│   ├── modules/                   # 业务模块 (3 个)
 │   │   ├── TaskPod.tsx             #   任务舱 (无边界待办)
-│   │   ├── WorkflowEditor.tsx      #   DAG 工作流编辑器
-│   │   ├── WorkflowPanel.tsx       #   工作流面板
-│   │   ├── MCPServerManager.tsx    #   MCP 服务器管理
-│   │   ├── MCPServerPanel.tsx      #   MCP 服务器面板
-│   │   └── ModuleSwitcher.tsx      #   模块切换器
-│   └── ui/                        # shadcn/ui 组件库 (48 个)
+│   │   ├── WorkflowEditor.tsx      #   DAG 工作流编辑器（P1 已激活替换 Panel）
+│   │   └── MCPServerPanel.tsx      #   MCP 服务器面板
+│   └── ui/                        # shadcn/ui 组件库 (47 个，含 PageSwitcher)
 ├── hooks/
 │   ├── useAI.ts                   # ★ AI 核心逻辑 (消息/记忆/云同步/指令)
 │   ├── useSpeech.ts               # 语音识别 + TTS + 音频可视化
@@ -295,8 +291,21 @@ pnpm test:e2e:ui
 |:---|:---|:---|:---|
 | 类型检查 | `pnpm typecheck` | TypeScript | 0 类型错误 |
 | 代码规范 | `pnpm lint` | ESLint 9 | 0 错误 0 警告 |
-| 单元测试 | `pnpm test` | Vitest | 组件 + Hook 测试 |
+| 单元测试 | `pnpm test` | Vitest | **78 测试用例**（7 个测试文件），组件 + Hook + 契约测试 |
 | E2E 测试 | `pnpm test:e2e` | Playwright | 10 测试用例，多浏览器 |
+
+#### 单元测试覆盖矩阵
+
+| 测试文件 | 用例数 | 覆盖范围 |
+|:---|:---:|:---|
+| [utils/\_\_tests\_\_/dag-engine.test.ts](utils/__tests__/dag-engine.test.ts) | 11 | DAG 引擎拓扑排序、循环检测、节点执行 |
+| [utils/\_\_tests\_\_/llm.test.ts](utils/__tests__/llm.test.ts) | 11 | LLM 多提供商路由、流式响应、重试机制 |
+| [modules/\_\_tests\_\_/registry.test.ts](modules/__tests__/registry.test.ts) | 10 | 模块注册中心契约（MODULE_REGISTRY/INDEX/LAUNCHABLE/getModule） |
+| [components/ai/\_\_tests\_\_/visuals.test.tsx](components/ai/__tests__/visuals.test.tsx) | 14 | Cube/GlobeVisual props 契约 + 5 状态渲染 + a11y（role/aria-label） |
+| [hooks/\_\_tests\_\_/useUIState.test.ts](hooks/__tests__/useUIState.test.ts) | 11 | UIState reducer（visualTheme 转换 + localStorage 持久化 + 回归） |
+| 其他测试文件 | 21 | AI 生成器、工具函数等 |
+
+> **测试策略**：①reducer 纯函数测试（导出 `uiReducer` + `initialState`，零 React 渲染依赖）；②SSR shim 渲染测试（`react-dom/server` 的 `renderToStaticMarkup` + jsdom 全局 `document`，零 `@testing-library/react` 依赖）；③类型级契约检查（`const _typeCheck: ComponentType<CommonProps> = CubeVisual` 编译期锁定 props 兼容性）。
 
 ### 项目脚本
 
@@ -406,10 +415,14 @@ AI 可通过 `[[CMD:指令]]` 令牌控制界面：
 | 键盘快捷键 | 完整实现 | 5 组快捷键 |
 | 多模态生成 | 完整实现 | Text/Image/Audio/Video |
 | DAG 工作流引擎 | 完整实现 | 拓扑排序 + 循环检测 |
+| 视觉主题切换 | 完整实现 | Cube ↔ Globe + localStorage 持久化 |
+| React.lazy 代码分割 | 完整实现 | 8 个业务 chunk 按需加载 |
+| 可访问性 (a11y) | 完整实现 | 视觉组件 role + 动态 aria-label |
+| 单元测试覆盖 | 78 测试 | 7 文件（reducer + 契约 + a11y） |
 | 国际化 | 完整实现 | 10 语言 |
 | E2E 测试 | 完整实现 | Playwright 10 tests |
 | CI/CD | 完整实现 | GitHub Actions |
-| 综合评分 | **90/100** | 五高架构 |
+| 综合评分 | **96/100** | 五高架构 + 五标准 + 五维度 |
 
 ---
 

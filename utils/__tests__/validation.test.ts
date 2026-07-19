@@ -74,16 +74,22 @@ describe('Message Validation', () => {
 });
 
 describe('Generation Request Validation', () => {
-  it('should block audio generation due to system fault', () => {
+  it('should allow audio generation mode', () => {
     const request = { mode: 'audio' as const, prompt: 'test' };
     const result = validateGenerationRequest(request);
-    expect(result.valid).toBe(false);
-    expect(result.error).toContain('system fault');
+    expect(result.valid).toBe(true);
   });
 
   it('should validate correct image request', () => {
     const request = { mode: 'image' as const, prompt: 'A cyber city' };
     const result = validateGenerationRequest(request);
     expect(result.valid).toBe(true);
+  });
+
+  it('should reject prompt exceeding 8000 chars', () => {
+    const request = { mode: 'text' as const, prompt: 'a'.repeat(8001) };
+    const result = validateGenerationRequest(request);
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('too long');
   });
 });

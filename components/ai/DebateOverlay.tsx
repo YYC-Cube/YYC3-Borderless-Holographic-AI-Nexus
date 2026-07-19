@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/src/i18n';
 import { CharacterProfile, PRESET_CHARACTERS } from '@/utils/character';
 import { generateCompletion, LLMConfig, MessageContent } from '@/utils/llm';
 import { Play, Square, Users, X, Zap } from 'lucide-react';
@@ -24,7 +25,8 @@ interface DebateMessage {
 }
 
 export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusChange, initialTopic }: DebateOverlayProps) {
-  const [charA, setCharA] = useState<CharacterProfile>(PRESET_CHARACTERS[1]); // Luna
+  const { t } = useTranslation();
+  const [charA, setCharA] = useState<CharacterProfile>(PRESET_CHARACTERS[1]);
   const [charB, setCharB] = useState<CharacterProfile>(PRESET_CHARACTERS[2]); // HAL
   const [topic, setTopic] = useState(initialTopic || '');
   const [isDebating, setIsDebating] = useState(false);
@@ -59,14 +61,7 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
     const systemPrompt = `
         ${activeChar.systemPrompt}
 
-        当前场景：你正在与 ${opponentChar.name} 进行一场激烈的对话/辩论。
-        辩论话题是：${topic}
-
-        规则：
-        1. 坚持你的性格设定。
-        2. 回应对方的观点，并提出新的论据。
-        3. 发言简短有力（100字以内）。
-        4. 不要重复之前的废话。
+        ${t('debate.systemPrompt', { opponent: opponentChar.name, topic })}
         `;
 
     const messages: MessageContent[] = history.slice(-6).map(m => ({
@@ -76,7 +71,7 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
 
     // Initial turn needs context
     if (messages.length === 0) {
-      messages.push({ role: 'user', content: `话题：${topic}。请发表你的看法。` });
+      messages.push({ role: 'user', content: t('debate.openPrompt', { topic }) });
     }
 
     // Use a temporary config for this character
@@ -161,8 +156,8 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
                   <Users className="w-6 h-6 text-cyan-400" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white tracking-wide">量子辩论室</h2>
-                  <p className="text-xs text-cyan-500/60 uppercase tracking-widest">Multi-Agent Simulation</p>
+                  <h2 className="text-xl font-bold text-white tracking-wide">{t('debate.title')}</h2>
+                  <p className="text-xs text-cyan-500/60 uppercase tracking-widest">{t('debate.subtitle')}</p>
                 </div>
               </div>
               <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-white/10">
@@ -175,7 +170,7 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
               {/* Left: Setup */}
               <div className="w-1/3 p-6 border-r border-white/5 flex flex-col gap-6 bg-black/20">
                 <div className="space-y-4">
-                  <label className="text-xs text-cyan-500 font-mono uppercase">正方 (Proponent)</label>
+                  <label className="text-xs text-cyan-500 font-mono uppercase">{t('debate.proponent')}</label>
                   <select
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-cyan-500 outline-none"
                     value={charA.id}
@@ -193,7 +188,7 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-xs text-red-500 font-mono uppercase">反方 (Opponent)</label>
+                  <label className="text-xs text-red-500 font-mono uppercase">{t('debate.opponent')}</label>
                   <select
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-red-500 outline-none"
                     value={charB.id}
@@ -205,11 +200,11 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-white/5">
-                  <label className="text-xs text-purple-500 font-mono uppercase">辩题 (Topic)</label>
+                  <label className="text-xs text-purple-500 font-mono uppercase">{t('debate.topic')}</label>
                   <Input
                     value={topic}
                     onChange={e => setTopic(e.target.value)}
-                    placeholder="例如：AI 是否拥有灵魂？"
+                    placeholder={t('debate.topicPlaceholder')}
                     className="bg-white/5 border-white/10 text-white"
                     disabled={isDebating}
                   />
@@ -223,7 +218,7 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
                       className="w-full bg-linear-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white font-bold h-12 shadow-lg shadow-purple-900/20"
                     >
                       <Play className="w-4 h-4 mr-2 fill-current" />
-                      开始推演
+                      {t('debate.start')}
                     </Button>
                   ) : (
                     <Button
@@ -232,7 +227,7 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
                       className="w-full h-12 bg-red-900/50 hover:bg-red-900/80 text-red-200 border border-red-500/20"
                     >
                       <Square className="w-4 h-4 mr-2 fill-current" />
-                      终止进程
+                      {t('debate.stop')}
                     </Button>
                   )}
                 </div>
@@ -243,7 +238,7 @@ export function DebateOverlay({ isOpen, onClose, mainConfig, onSpeak, onStatusCh
                 {transcript.length === 0 && (
                   <div className="h-full flex flex-col items-center justify-center text-white/10 gap-4">
                     <Zap className="w-16 h-16 opacity-20" />
-                    <p className="text-sm font-light tracking-widest">等待初始化辩论序列...</p>
+                    <p className="text-sm font-light tracking-widest">{t('debate.idle')}</p>
                   </div>
                 )}
                 {transcript.map((msg) => (

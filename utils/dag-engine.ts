@@ -46,12 +46,6 @@ export class DAGEngine {
       return { valid: false, error: 'Graph is empty' };
     }
 
-    // Check for Voice/Audio nodes (System Fault)
-    const voiceNode = this.graph.nodes.find(n => n.type === 'audio_synth');
-    if (voiceNode) {
-      return { valid: false, error: `Critical Fault: Node ${voiceNode.label} (audio_synth) is corrupted. Execution blocked.` };
-    }
-
     // Detect Cycles using DFS
     try {
       this.executionOrder = this.topologicalSort();
@@ -184,6 +178,9 @@ export class DAGEngine {
         return `Processed by LLM: ${JSON.stringify(inputs)}`;
       case 'image_gen':
         return 'https://example.com/generated-image.png';
+      case 'audio_synth':
+        // Audio synthesis output (URL placeholder — real TTS handled by generation.ts)
+        return `data:audio/mp3;synthesized-from-${Object.keys(inputs).length}-inputs`;
       case 'output':
         return inputs;
       default:

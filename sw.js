@@ -52,6 +52,10 @@ self.addEventListener('fetch', (event) => {
   // Skip browser extensions and non-http(s)
   if (!url.protocol.startsWith('http')) return;
 
+  // Skip cross-origin requests (e.g., cloud sync to external servers) —
+  // these should go directly to the network, not through our cache layer
+  if (url.origin !== self.location.origin) return;
+
   // --- API / Data requests: Network-first with runtime cache fallback ---
   if (url.pathname.startsWith('/api/') || url.pathname.includes('/data/')) {
     event.respondWith(networkFirst(request));

@@ -1,4 +1,5 @@
 import { useGaze } from '@/hooks/useGaze'; // Import useGaze
+import { useTranslation } from '@/src/i18n';
 import { YYC3_DESIGN } from '@/utils/design-system'; // Import Design System
 import { Eye, Maximize2, Mic, Sparkles, X } from 'lucide-react';
 import { motion, PanInfo, useMotionValue, useSpring, useTransform } from 'motion/react';
@@ -13,6 +14,7 @@ interface MultimodalArtifactProps {
 }
 
 export function MultimodalArtifact({ type, content, transcript, messages, onClose }: MultimodalArtifactProps) {
+  const { t } = useTranslation();
   // --- Physics & Motion State ---
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -48,24 +50,24 @@ export function MultimodalArtifact({ type, content, transcript, messages, onClos
 
     // Voice + Context Fusion: Only works if we are interacting or gazing
     // In this version, we assume if the artifact is open, it receives commands
-    if (cmd.includes('放大') || cmd.includes('enhance')) {
+    if (cmd.includes(t('artifact.commandZoom')) || cmd.includes('enhance') || cmd.includes('zoom')) {
       scale.set(1.5);
       triggerHaptic('success');
-    } else if (cmd.includes('缩小') || cmd.includes('reset')) {
+    } else if (cmd.includes(t('artifact.commandReset')) || cmd.includes('reset')) {
       scale.set(1);
       triggerHaptic('light');
-    } else if (cmd.includes('关闭') || cmd.includes('close')) {
+    } else if (cmd.includes(t('artifact.commandClose')) || cmd.includes('close')) {
       if (onClose) onClose();
       triggerHaptic('heavy');
-    } else if (cmd.includes('分析') || cmd.includes('analyze')) {
+    } else if (cmd.includes(t('artifact.commandAnalyze')) || cmd.includes('analyze')) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveLayer('analysis');
       triggerHaptic('success');
-    } else if (cmd.includes('详情') || cmd.includes('details')) {
+    } else if (cmd.includes(t('artifact.commandDetails')) || cmd.includes('details')) {
       setActiveLayer('meta');
       triggerHaptic('light');
     }
-  }, [transcript, scale, onClose]);
+  }, [transcript, scale, onClose, t]);
 
   // --- Gesture Handlers ---
   const handlePan = (_e: PointerEvent, info: PanInfo) => {
@@ -150,14 +152,14 @@ export function MultimodalArtifact({ type, content, transcript, messages, onClos
             animate={{ opacity: activeLayer === 'meta' || isGazing ? 1 : 0 }}
             className="absolute inset-0 z-20 pointer-events-none bg-linear-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-6"
           >
-            <h3 className="text-white font-bold text-lg translate-y-2">Memory Artifact #042</h3>
+            <h3 className="text-white font-bold text-lg translate-y-2">{t('artifact.memoryFragment')}</h3>
             <div className="flex gap-2 mt-2">
-              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded">VISUAL</span>
-              <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">ENCRYPTED</span>
+              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded">{t('artifact.visual')}</span>
+              <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">{t('artifact.encrypted')}</span>
             </div>
             <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-              Captured via Temporal Link.
-              <br />Use voice to "Analyze" or "Enhance".
+              {t('artifact.capturedVia')}
+              <br />{t('artifact.voiceHint')}
             </p>
           </motion.div>
 

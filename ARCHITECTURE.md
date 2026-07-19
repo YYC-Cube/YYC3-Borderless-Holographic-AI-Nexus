@@ -245,21 +245,25 @@ App.tsx
     │   └── Video 生成
     ├── TaskPod.tsx
     │   └── 无边界待办列表
-    ├── WorkflowPanel.tsx
-    │   └── WorkflowEditor.tsx
-    │       └── DAG 可视化编辑器
+    ├── WorkflowEditor.tsx (P1 已激活，融合原 Panel 能力)
+    │   └── 真实 DAG 编辑器 (多工作流侧栏 + 拖拽节点 + SVG 连线 + DAGEngine.execute)
     ├── MCPServerPanel.tsx
-    │   └── MCPServerManager.tsx
-    │       └── 服务器配置 (GitHub/PostgreSQL/Slack)
+    │   └── 服务器配置 (GitHub/PostgreSQL/Slack)
     ├── MultimodalArtifact.tsx
     │   └── 多模态产物查看器
-    ├── NeuralNetModule.tsx
+    ├── NeuralNetModule.tsx (备用主题 — P2 将激活为视觉切换)
     │   └── 神经网络可视化
     ├── SecurityModule.tsx
     │   └── 安全审计界面
-    └── PageSelector.tsx
+    └── PageSwitcher.tsx (合并了 PageSelector 的下滑手势)
         └── 页面选择器 (Ctrl+K)
 ```
+
+> **变更说明 (2026-07-19)**：
+> - **P0**：清理 4 个 Dead Code 组件（PageSelector / ModuleSwitcher / MCPServerManager / GeometricBackground），PageSelector 的下滑关闭手势已合并到 PageSwitcher。
+> - **P1**：用 WorkflowEditor 替换 WorkflowPanel（已删除），融合真实 DAG 执行 + 多工作流侧栏 + i18n + GestureContainer。
+> - **P2**：①视觉主题切换器（ConfigPanel 新增 `appearance` tab + `visualTheme` 状态 + localStorage 持久化，CubeVisual ↔ GlobeVisual 动态切换）；②React.lazy 代码分割（7 个业务面板 lazy 化 + Suspense 兜底）；③模块注册中心 `modules/registry.ts`（消除 PageSwitcher/handleSwitchPage/getCurrentPageId 三处硬编码，新增模块只需 1 处声明）。
+> - **P3**：①测试用例同步完善（新增 3 个测试文件共 35 个用例：`modules/__tests__/registry.test.ts` 10 个 + `hooks/__tests__/useUIState.test.ts` 11 个 + `components/ai/__tests__/visuals.test.tsx` 14 个，总测试数 43→78）；②useUIState 导出 `initialState` + `uiReducer` 支持纯函数测试；③可访问性增强（CubeVisual + GlobeVisual 的 motion.div 增加 `role="button"` + 动态 `aria-label`，根据 AI 状态自动切换）；④build 验证 8 个独立业务 chunk 分割生效（主包 464.56 kB / gzip 152.35 kB）。
 
 ---
 

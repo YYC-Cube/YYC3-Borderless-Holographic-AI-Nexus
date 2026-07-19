@@ -65,20 +65,22 @@ export function useAI(actions: CommandActions) {
 
     // Try to pull from cloud on startup
     const pullFromCloud = async () => {
-      // Only try sync if we have a URL and it's NOT mixed content
-      if (!config.syncServerUrl || isMixedContent(config.syncServerUrl)) return;
+      try {
+        // Only try sync if we have a URL and it's NOT mixed content
+        if (!config.syncServerUrl || isMixedContent(config.syncServerUrl)) return;
 
-      const cloudData = await syncPull(config.syncServerUrl, userId);
-      if (cloudData.success && cloudData.data) {
-        console.log("Cloud Sync Pulled:", cloudData);
-        if (cloudData.data.messages?.length > 0) {
-          setMessages(cloudData.data.messages);
+        const cloudData = await syncPull(config.syncServerUrl, userId);
+        if (cloudData?.success && cloudData?.data) {
+          console.log("Cloud Sync Pulled:", cloudData);
+          if (cloudData.data.messages?.length > 0) {
+            setMessages(cloudData.data.messages);
+          }
+          if (cloudData.data.config) {
+            setConfig(prev => ({ ...prev, ...cloudData.data!.config }));
+          }
         }
-        if (cloudData.data.config) {
-          setConfig(prev => ({ ...prev, ...cloudData.data!.config }));
-        }
-      } else {
-        // Silent fail
+      } catch {
+        // Cloud sync is non-critical — silently fail
       }
     };
 

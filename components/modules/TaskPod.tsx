@@ -1,5 +1,6 @@
 import { GestureContainer } from '@/components/ui/GestureContainer';
 import { useGaze } from '@/hooks/useGaze';
+import { useTranslation } from '@/src/i18n';
 import { YYC3_DESIGN } from '@/utils/design-system';
 import { Check, Clock, Mic, X } from 'lucide-react';
 import { AnimatePresence, motion, PanInfo } from 'motion/react';
@@ -21,18 +22,21 @@ interface TaskPodProps {
 }
 
 export function TaskPod({ isOpen, onClose, transcript, onShowSwitcher }: TaskPodProps) {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState<Task[]>(() => [
-    { id: '1', text: '初始化 YYC³ 神经核心', completed: true, timestamp: Date.now() },
-    { id: '2', text: '同步量子记忆库', completed: false, timestamp: Date.now() },
+    { id: '1', text: t('taskpod.initialTasks.0'), completed: true, timestamp: Date.now() },
+    { id: '2', text: t('taskpod.initialTasks.1'), completed: false, timestamp: Date.now() },
   ]);
 
   // Handle voice commands
   useEffect(() => {
     if (!isOpen || !transcript) return;
     const lower = transcript.toLowerCase();
+    const addKeyword = t('taskpod.commandAdd').toLowerCase();
+    const remindKeyword = t('taskpod.commandRemind').toLowerCase();
 
-    if (lower.includes('添加') || lower.includes('add') || lower.includes('提醒')) {
-      const content = transcript.replace(/.*(添加|add|提醒)/i, '').trim();
+    if (lower.includes(addKeyword) || lower.includes('add') || lower.includes(remindKeyword)) {
+      const content = transcript.replace(new RegExp(`.*(${addKeyword}|add|${remindKeyword})`, 'i'), '').trim();
       if (content.length > 2) {
         const newTask = {
           id: Date.now().toString(),
@@ -45,7 +49,7 @@ export function TaskPod({ isOpen, onClose, transcript, onShowSwitcher }: TaskPod
         if (navigator.vibrate) navigator.vibrate(50);
       }
     }
-  }, [transcript, isOpen]);
+  }, [transcript, isOpen, t]);
 
   const handleSwipe = (id: string, info: PanInfo) => {
     if (info.offset.x > 100) {
@@ -89,7 +93,7 @@ export function TaskPod({ isOpen, onClose, transcript, onShowSwitcher }: TaskPod
               <div className="w-full mb-8 flex justify-between items-center shrink-0">
                 <h2 className="text-xl font-light text-emerald-400 tracking-widest uppercase flex items-center gap-2">
                   <span className="w-1.5 h-6 bg-emerald-500 rounded-full" />
-                  TASK_POD
+                  {t('taskpod.title')}
                 </h2>
                 <button
                   onClick={onClose}
@@ -109,7 +113,7 @@ export function TaskPod({ isOpen, onClose, transcript, onShowSwitcher }: TaskPod
 
                 {tasks.length === 0 && (
                   <div className="text-center text-white/20 mt-20 font-mono text-sm">
-                    QUEUE_EMPTY<br />AWAITING_INPUT
+                    {t('taskpod.empty')}
                   </div>
                 )}
               </div>
@@ -117,7 +121,7 @@ export function TaskPod({ isOpen, onClose, transcript, onShowSwitcher }: TaskPod
               {/* Bottom Voice Hint */}
               <div className="absolute bottom-6 flex flex-col items-center gap-2 opacity-50 shrink-0">
                 <Mic className="w-5 h-5 animate-pulse text-emerald-400" />
-                <span className="text-[10px] text-emerald-200/50 font-mono">SAY_ADD_TASK</span>
+                <span className="text-[10px] text-emerald-200/50 font-mono">{t('taskpod.voiceHint')}</span>
               </div>
             </motion.div>
           </GestureContainer>

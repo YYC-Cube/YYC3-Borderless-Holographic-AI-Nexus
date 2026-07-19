@@ -4,6 +4,21 @@ import { useCallback, useReducer } from 'react';
 // UI State — unified reducer for panel & UI state management
 // ============================================================
 
+/** Available 3D visual themes for the main stage. */
+export type VisualTheme = 'cube' | 'globe';
+
+const VISUAL_THEME_KEY = 'yyc3_visual_theme';
+
+function loadVisualTheme(): VisualTheme {
+  if (typeof window === 'undefined') return 'cube';
+  try {
+    const v = window.localStorage.getItem(VISUAL_THEME_KEY);
+    return v === 'globe' ? 'globe' : 'cube';
+  } catch {
+    return 'cube';
+  }
+}
+
 export interface UIState {
   // Panel visibility (10 panels)
   showConfig: boolean;
@@ -21,6 +36,7 @@ export interface UIState {
   showGuide: boolean;
   textMode: boolean;
   themeColor: 'cyan' | 'red';
+  visualTheme: VisualTheme;
   inspectingArtifact: { type: 'image' | 'text'; content: string } | null;
   isDragging: boolean;
   pendingImage: string | null;
@@ -38,13 +54,14 @@ export type UIAction =
   | { type: 'SET_TEXT_MODE'; value: boolean }
   | { type: 'TOGGLE_THEME' }
   | { type: 'SET_THEME_COLOR'; value: 'cyan' | 'red' }
+  | { type: 'SET_VISUAL_THEME'; value: VisualTheme }
   | { type: 'SET_INSPECTING_ARTIFACT'; value: UIState['inspectingArtifact'] }
   | { type: 'SET_IS_DRAGGING'; value: boolean }
   | { type: 'SET_PENDING_IMAGE'; value: string | null }
   | { type: 'SET_IS_MESSAGE_VISIBLE'; value: boolean }
   | { type: 'SET_DEBATE_STATUS'; value: UIState['debateStatus'] };
 
-const initialState: UIState = {
+export const initialState: UIState = {
   showConfig: false,
   showHistory: false,
   showDebate: false,
@@ -59,6 +76,7 @@ const initialState: UIState = {
   showGuide: true,
   textMode: false,
   themeColor: 'cyan',
+  visualTheme: loadVisualTheme(),
   inspectingArtifact: null,
   isDragging: false,
   pendingImage: null,
@@ -66,7 +84,7 @@ const initialState: UIState = {
   debateStatus: 'idle',
 };
 
-function uiReducer(state: UIState, action: UIAction): UIState {
+export function uiReducer(state: UIState, action: UIAction): UIState {
   switch (action.type) {
     case 'SET_PANEL':
       return { ...state, [action.panel]: action.value };
@@ -101,6 +119,17 @@ function uiReducer(state: UIState, action: UIAction): UIState {
     case 'SET_THEME_COLOR':
       return { ...state, themeColor: action.value };
 
+    case 'SET_VISUAL_THEME': {
+      try {
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(VISUAL_THEME_KEY, action.value);
+        }
+      } catch {
+        /* localStorage unavailable; ignore */
+      }
+      return { ...state, visualTheme: action.value };
+    }
+
     case 'SET_INSPECTING_ARTIFACT':
       return { ...state, inspectingArtifact: action.value };
 
@@ -131,6 +160,7 @@ export function useUIState() {
   const setTextMode = useCallback((value: boolean) => dispatch({ type: 'SET_TEXT_MODE', value }), []);
   const toggleTheme = useCallback(() => dispatch({ type: 'TOGGLE_THEME' }), []);
   const setThemeColor = useCallback((value: 'cyan' | 'red') => dispatch({ type: 'SET_THEME_COLOR', value }), []);
+  const setVisualTheme = useCallback((value: VisualTheme) => dispatch({ type: 'SET_VISUAL_THEME', value }), []);
   const setInspectingArtifact = useCallback((value: UIState['inspectingArtifact']) => dispatch({ type: 'SET_INSPECTING_ARTIFACT', value }), []);
   const setIsDragging = useCallback((value: boolean) => dispatch({ type: 'SET_IS_DRAGGING', value }), []);
   const setPendingImage = useCallback((value: string | null) => dispatch({ type: 'SET_PENDING_IMAGE', value }), []);
@@ -151,6 +181,7 @@ export function useUIState() {
     setTextMode,
     toggleTheme,
     setThemeColor,
+    setVisualTheme,
     setInspectingArtifact,
     setIsDragging,
     setPendingImage,

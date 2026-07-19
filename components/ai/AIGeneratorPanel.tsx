@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { GestureContainer } from '@/components/ui/GestureContainer';
+import { useTranslation } from '@/src/i18n';
 import { GenerationRequest, GeneratorMode } from '@/types';
 import { dispatchGeneration, GenerationResult } from '@/utils/generation';
 import { DEFAULT_CONFIG, generateCompletion, MessageContent } from '@/utils/llm';
@@ -17,6 +18,7 @@ interface AIGeneratorPanelProps {
 }
 
 export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGeneratorPanelProps) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<GeneratorMode>('image');
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -32,7 +34,7 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
     const validation = validateGenerationRequest(request);
 
     if (!validation.valid) {
-      toast.error("验证失败 / Validation Failed", { description: validation.error });
+      toast.error(t('generator.validationFailed'), { description: validation.error });
       return;
     }
 
@@ -50,8 +52,8 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
         const response = await generateCompletion(messages, DEFAULT_CONFIG);
         setGeneratedText(response);
         setResult({ success: true, mimeType: 'text/plain' });
-        toast.success("生成完成 / Generation Complete", {
-          description: "LLM 响应已生成 / LLM response generated successfully."
+        toast.success(t('generator.generationComplete'), {
+          description: t('generator.llmResponseGenerated')
         });
       } else if (mode === 'image' || mode === 'video' || mode === 'audio') {
         // Real API call via dispatchGeneration
@@ -59,20 +61,20 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
 
         if (genResult.success) {
           setResult(genResult);
-          toast.success("生成完成 / Generation Complete", {
-            description: `${mode.toUpperCase()} 内容创建成功 / artifact created successfully.`
+          toast.success(t('generator.generationComplete'), {
+            description: `${mode.toUpperCase()} ${t('generator.artifactCreated')}`
           });
         } else {
           // Fallback: show placeholder on API failure
           setResult(genResult);
-          toast.warning("生成降级 / Generation Degraded", {
-            description: genResult.error || "API 不可用，显示模拟结果 / API unavailable, showing mock result."
+          toast.warning(t('generator.generationDegraded'), {
+            description: genResult.error || t('generator.apiUnavailable')
           });
         }
       }
     } catch (_error) {
-      toast.error("生成失败 / Generation Failed", {
-        description: "API 连接失败，请检查配置 / API connection failed, check settings."
+      toast.error(t('generator.generationFailed'), {
+        description: t('generator.apiConnectionFailed')
       });
     } finally {
       setIsGenerating(false);
@@ -97,8 +99,8 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
             <Sparkles className="w-12 h-12 animate-spin text-yellow-400 relative z-10" />
           </div>
           <div className="text-center">
-            <p className="font-mono text-sm text-yellow-100 font-bold tracking-widest">神经元处理中 / NEURAL_PROCESSING</p>
-            <p className="font-mono text-[10px] text-yellow-500/50 mt-1">正在分配计算张量 / Allocating GPU tensors...</p>
+            <p className="font-mono text-sm text-yellow-100 font-bold tracking-widest">{t('generator.neuralProcessing')}</p>
+            <p className="font-mono text-[10px] text-yellow-500/50 mt-1">{t('generator.allocatingTensors')}</p>
           </div>
         </div>
       );
@@ -110,8 +112,8 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
           <div className="flex-1 bg-black/40 rounded-xl border border-white/5 overflow-hidden flex items-center justify-center relative group">
             {mode === 'text' && (
               <div className="p-8 text-left font-mono text-sm leading-relaxed text-gray-300 w-full h-full overflow-y-auto custom-scrollbar">
-                <span className="text-blue-400 block mb-4">// 生成结果 / Generated Output</span>
-                {generatedText || `这是基于您的提示词 "${prompt}" 生成的回复。`}
+                <span className="text-blue-400 block mb-4">// {t('generator.generatedOutput')}</span>
+                {generatedText || t('generator.mockResponse', { prompt })}
               </div>
             )}
             {mode === 'image' && (
@@ -194,7 +196,7 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
         <div className="p-6 rounded-full bg-white/5 border border-white/5">
           <Network className="w-12 h-12" />
         </div>
-        <p className="font-mono text-xs tracking-widest">等待输入向量 / AWAITING_INPUT_VECTOR</p>
+        <p className="font-mono text-xs tracking-widest">{t('generator.awaiting')}</p>
       </div>
     );
   };
@@ -237,17 +239,17 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
                       <Network className="w-6 h-6 text-yellow-400" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold tracking-widest text-white">工作室 / STUDIO</h2>
+                      <h2 className="text-lg font-bold tracking-widest text-white">{t('generator.studio')}</h2>
                       <p className="text-[9px] font-mono text-yellow-500/60 uppercase tracking-wider">Generative_AI_Suite</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  {[{ id: 'text', label: '文本生成 / TEXT_GEN', icon: Type, desc: 'LLM Response' },
-                  { id: 'image', label: '图像合成 / IMAGE_SYNTH', icon: ImageIcon, desc: 'Diffusion Model' },
-                  { id: 'audio', label: '音频波形 / AUDIO_WAVE', icon: Music, desc: 'Voice Synthesis' },
-                  { id: 'video', label: '视频渲染 / VIDEO_RENDER', icon: Video, desc: 'Motion Graphics' },
+                  {[{ id: 'text', label: t('generator.text'), icon: Type, desc: t('generator.descText') },
+                  { id: 'image', label: t('generator.image'), icon: ImageIcon, desc: t('generator.descImage') },
+                  { id: 'audio', label: t('generator.audio'), icon: Music, desc: t('generator.descAudio') },
+                  { id: 'video', label: t('generator.video'), icon: Video, desc: t('generator.descVideo') },
                   ].map((item) => (
                     <button
                       key={item.id}
@@ -272,7 +274,7 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
                 <div className="mt-auto pt-6 border-t border-white/5">
                   <div className="p-3 bg-white/5 rounded-lg border border-white/5 mb-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] text-gray-500 font-mono">额度 / CREDITS</span>
+                      <span className="text-[10px] text-gray-500 font-mono">{t('generator.credits')}</span>
                       <span className="text-[10px] text-yellow-400 font-mono">850 / 1000</span>
                     </div>
                     <div className="h-1 bg-white/10 rounded-full overflow-hidden">
@@ -280,7 +282,7 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
                     </div>
                   </div>
                   <Button variant="ghost" className="w-full justify-start gap-3 text-gray-500 text-xs font-mono hover:text-white hover:bg-white/5" onClick={onClose}>
-                    <ArrowLeft className="w-4 h-4" /> 返回主页 / RETURN_HOME
+                    <ArrowLeft className="w-4 h-4" /> {t('generator.returnHome')}
                   </Button>
                 </div>
               </div>
@@ -291,12 +293,12 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
                 <div className="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-black/20">
                   <div className="flex items-center gap-4">
                     <span className={`px-3 py-1 rounded-md text-[10px] font-mono uppercase tracking-widest border ${getModeColor()}`}>
-                      模型 / MODEL: {mode === 'text' ? 'GPT-4o' : mode === 'image' ? 'FLUX-PRO' : mode === 'audio' ? 'ELEVEN-LABS' : 'RUNWAY-GEN2'}
+                      {t('generator.model')}: {mode === 'text' ? 'GPT-4o' : mode === 'image' ? 'FLUX-PRO' : mode === 'audio' ? 'ELEVEN-LABS' : 'RUNWAY-GEN2'}
                     </span>
                     <div className="h-4 w-[1px] bg-white/10" />
                     <span className="text-[10px] text-gray-500 font-mono flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      就绪 / READY
+                      {t('generator.ready')}
                     </span>
                   </div>
                   <div className="flex gap-2">
@@ -311,23 +313,23 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
                   <div className="w-full lg:w-[400px] border-r border-white/5 p-6 flex flex-col gap-6 bg-black/10">
                     <div className="flex-1">
                       <label className="text-[10px] font-mono text-gray-500 mb-2 block uppercase tracking-wider flex justify-between">
-                        <span>提示词输入 / Prompt Input</span>
+                        <span>{t('generator.promptInput')}</span>
                         <span className="text-white/20">CTRL+ENTER</span>
                       </label>
                       <textarea
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         className="w-full h-full min-h-[200px] bg-black/40 border border-white/10 rounded-xl p-4 text-sm text-gray-200 font-sans focus:border-yellow-500/50 focus:ring-1 focus:ring-yellow-500/20 focus:outline-none resize-none transition-all placeholder:text-white/10 leading-relaxed"
-                        placeholder={`详细描述您想要生成的${mode === 'text' ? '文本' : mode === 'image' ? '图像' : mode === 'audio' ? '音频' : '视频'}...\nDescribe the ${mode} you want to generate in detail...`}
+                        placeholder={mode === 'text' ? t('generator.placeholderText') : mode === 'image' ? t('generator.placeholderImage') : mode === 'audio' ? t('generator.placeholderAudio') : t('generator.placeholderVideo')}
                       />
                     </div>
 
                     {/* Params */}
                     <div className="p-4 bg-black/20 rounded-xl border border-white/5 space-y-4">
-                      <label className="text-[10px] font-mono text-gray-500 block uppercase tracking-wider">参数 / Parameters</label>
+                      <label className="text-[10px] font-mono text-gray-500 block uppercase tracking-wider">{t('generator.params')}</label>
                       <div className="space-y-3">
                         <div className="flex justify-between text-[10px] text-gray-400 font-mono">
-                          <span>引导系数 / Guidance Scale</span>
+                          <span>{t('generator.guidanceScale')}</span>
                           <span className="text-yellow-500">7.5</span>
                         </div>
                         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
@@ -336,7 +338,7 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
                       </div>
                       <div className="space-y-3">
                         <div className="flex justify-between text-[10px] text-gray-400 font-mono">
-                          <span>步数 / Steps</span>
+                          <span>{t('generator.steps')}</span>
                           <span className="text-yellow-500">30</span>
                         </div>
                         <div className="h-1 bg-white/10 rounded-full overflow-hidden">
@@ -354,7 +356,7 @@ export function AIGeneratorPanel({ isOpen, onClose, onShowSwitcher }: AIGenerato
                         }`}
                     >
                       {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                      {isGenerating ? '处理中... / PROCESSING...' : '生成工件 / GENERATE_ARTIFACT'}
+                      {isGenerating ? t('generator.generating') : t('generator.generate')}
                     </Button>
                   </div>
 

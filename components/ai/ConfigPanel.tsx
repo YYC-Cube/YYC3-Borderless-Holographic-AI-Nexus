@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/src/i18n';
 import { LLMConfig } from '@/types';
 import { CharacterProfile, PRESET_CHARACTERS, applyCharacterToConfig } from '@/utils/character';
 import { DEFAULT_SERVER_URL } from '@/utils/cloud';
 import { DEFAULT_PRESETS, ModelPreset, createConfigFromPreset } from '@/utils/model-presets';
-import { AlertTriangle, Box, Cloud, Code, Cpu, Database, Globe, Key, Laptop, MessageSquare, Moon, Plus, RefreshCw, Save, Search, Server, Settings, Sliders, Sparkles, Terminal, Users, Volume2, X } from 'lucide-react';
+import { AlertTriangle, Box, Cloud, Code, Cpu, Database, Globe, Key, Laptop, MessageSquare, Moon, Palette, Plus, RefreshCw, Save, Search, Server, Settings, Sliders, Sparkles, Terminal, Users, Volume2, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 
@@ -13,6 +14,8 @@ interface ConfigPanelProps {
   onClose: () => void;
   config: LLMConfig;
   onSave: (config: LLMConfig) => void;
+  visualTheme?: 'cube' | 'globe';
+  onVisualThemeChange?: (theme: 'cube' | 'globe') => void;
 }
 
 // Enhanced Model Hints Library
@@ -39,7 +42,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 const _openaiVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
 
-export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: ConfigPanelProps) {
+export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave, visualTheme = 'cube', onVisualThemeChange }: ConfigPanelProps) {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<LLMConfig>({
     ...initialConfig,
     syncServerUrl: initialConfig.syncServerUrl || DEFAULT_SERVER_URL,
@@ -47,7 +51,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
     topP: initialConfig.topP || 0.9,
     maxTokens: initialConfig.maxTokens || 2048,
   });
-  const [activeTab, setActiveTab] = useState<'engine' | 'voice' | 'persona' | 'cloud'>('engine');
+  const [activeTab, setActiveTab] = useState<'engine' | 'voice' | 'persona' | 'cloud' | 'appearance'>('engine');
   const [hint, setHint] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [presets, _setPresets] = useState<ModelPreset[]>(DEFAULT_PRESETS);
@@ -114,13 +118,13 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                   <Settings className="w-5 h-5 text-cyan-400 animate-[spin_10s_linear_infinite]" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-mono font-bold text-cyan-100 tracking-wider uppercase">神经中枢设置 / NEURAL HUB SETTINGS</h2>
-                  <div className="text-[10px] text-cyan-500/60 font-mono">系统配置_V7.4 / SYSTEM_CONFIG_V7.4</div>
+                  <h2 className="text-lg font-mono font-bold text-cyan-100 tracking-wider uppercase">{t('panel.title')}</h2>
+                  <div className="text-[10px] text-cyan-500/60 font-mono">{t('panel.subtitle')}</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={handleSave} className="h-8 gap-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20">
-                  <Save className="w-4 h-4" /> 保存配置 / Save Config
+                  <Save className="w-4 h-4" /> {t('panel.save')}
                 </Button>
                 <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-white/10 hover:text-white text-gray-400">
                   <X className="w-5 h-5" />
@@ -133,15 +137,16 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
               {/* Sidebar Navigation */}
               <div className="w-56 bg-black/20 border-r border-white/5 p-4 space-y-2 hidden md:block shrink-0">
                 {[
-                  { id: 'engine', label: '核心引擎 / Core Engine', icon: Cpu },
-                  { id: 'voice', label: '语音合成 / Voice Synth', icon: Volume2, error: true },
-                  { id: 'persona', label: '人格设定 / Persona', icon: Users },
-                  { id: 'cloud', label: '云端同步 / Cloud Sync', icon: Cloud }
+                  { id: 'engine', label: t('panel.tabs.engine'), icon: Cpu },
+                  { id: 'voice', label: t('panel.tabs.voice'), icon: Volume2, error: true },
+                  { id: 'persona', label: t('panel.tabs.persona'), icon: Users },
+                  { id: 'cloud', label: t('panel.tabs.cloud'), icon: Cloud },
+                  { id: 'appearance', label: t('panel.tabs.appearance'), icon: Palette }
                 ].map(tab => (
                   <button
                     key={tab.id}
                     disabled={tab.error}
-                    onClick={() => !tab.error && setActiveTab(tab.id as 'engine' | 'voice' | 'persona' | 'cloud')}
+                    onClick={() => !tab.error && setActiveTab(tab.id as 'engine' | 'voice' | 'persona' | 'cloud' | 'appearance')}
                     className={`w-full flex items-center gap-3 p-3 rounded-lg text-xs font-mono transition-all ${activeTab === tab.id
                       ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                       : tab.error
@@ -151,12 +156,12 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                   >
                     <tab.icon className="w-4 h-4" />
                     {tab.label}
-                    {tab.error && <span className="ml-auto text-[8px] bg-red-500/20 text-red-400 px-1 rounded animate-pulse">FAULT</span>}
+                    {tab.error && <span className="ml-auto text-[8px] bg-red-500/20 text-red-400 px-1 rounded animate-pulse">{t('panel.fault')}</span>}
                   </button>
                 ))}
 
                 <div className="pt-4 mt-4 border-t border-white/5">
-                  <div className="px-3 text-[10px] font-mono text-gray-600 uppercase tracking-widest mb-2">支持架构 / Supported Architectures</div>
+                  <div className="px-3 text-[10px] font-mono text-gray-600 uppercase tracking-widest mb-2">{t('panel.supportedArch')}</div>
                   <div className="px-3 flex flex-wrap gap-2 opacity-50">
                     {['GPT', 'GLM', 'Qwen', 'Yi', 'Llama'].map(t => (
                       <span key={t} className="text-[9px] bg-white/5 px-1.5 py-0.5 rounded text-gray-400">{t}</span>
@@ -172,7 +177,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                     {/* Preset Library Grid */}
                     <div className="space-y-3">
                       <label className="flex items-center gap-2 text-xs text-cyan-500 font-mono tracking-wider uppercase">
-                        <Globe className="w-3 h-3" /> 模型信息��� / Model Information Library
+                        <Globe className="w-3 h-3" /> {t('panel.modelLibrary')}
                       </label>
                       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                         {presets.map((preset) => {
@@ -202,7 +207,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                         {/* Custom Add Button - Visual Only for now */}
                         <button className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-white/10 bg-white/5 text-gray-500 hover:text-white hover:border-white/20 transition-all">
                           <Plus className="w-5 h-5" />
-                          <span className="text-[10px] font-mono">自定义模型 / Custom Model</span>
+                          <span className="text-[10px] font-mono">{t('panel.customModel')}</span>
                         </button>
                       </div>
                     </div>
@@ -212,7 +217,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                       <div className="flex items-center justify-between border-b border-white/5 pb-2">
                         <div className="flex items-center gap-2">
                           <Terminal className="w-4 h-4 text-cyan-500" />
-                          <span className="text-xs font-mono text-cyan-100">连接矩阵 / CONNECTION_MATRIX</span>
+                          <span className="text-xs font-mono text-cyan-100">{t('panel.connectionMatrix')}</span>
                         </div>
                         <div className="flex gap-2">
                           {config.provider === 'zhipu' && <span className="text-[9px] text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded bg-purple-500/10">BigModel Open Platform</span>}
@@ -222,7 +227,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <span className="text-[10px] uppercase text-gray-500 font-mono">端点 URL / Endpoint URL</span>
+                          <span className="text-[10px] uppercase text-gray-500 font-mono">{t('panel.endpointUrl')}</span>
                           <Input
                             value={config.baseUrl}
                             onChange={(e) => setConfig({ ...config, baseUrl: e.target.value })}
@@ -231,7 +236,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                           />
                         </div>
                         <div className="space-y-1">
-                          <span className="text-[10px] uppercase text-gray-500 font-mono">目标模型 ID / Target Model ID</span>
+                          <span className="text-[10px] uppercase text-gray-500 font-mono">{t('panel.targetModelId')}</span>
                           <div className="relative">
                             <Input
                               value={config.model}
@@ -246,7 +251,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
 
                       {config.provider !== 'ollama' && config.baseUrl !== 'http://localhost:1234/v1' && (
                         <div className="space-y-1">
-                          <span className="text-[10px] uppercase text-gray-500 font-mono">密钥 / Secret Key</span>
+                          <span className="text-[10px] uppercase text-gray-500 font-mono">{t('panel.secretKey')}</span>
                           <div className="relative">
                             <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-600" />
                             <Input
@@ -271,7 +276,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                           >
                             <MessageSquare className="w-3 h-3 mt-0.5 shrink-0" />
                             <div>
-                              <div className="font-bold mb-0.5">检测到优化 / OPTIMIZATION DETECTED</div>
+                              <div className="font-bold mb-0.5">{t('panel.optimizationDetected')}</div>
                               <div className="opacity-80 leading-relaxed">{hint}</div>
                             </div>
                           </motion.div>
@@ -282,7 +287,7 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                               className="text-[10px] font-mono text-gray-600 bg-white/5 border border-white/5 p-2 rounded flex items-center gap-2"
                             >
                               <Search className="w-3 h-3" />
-                              <span>等待架构识别... / Awaiting architecture identification...</span>
+                              <span>{t('panel.awaiting')}</span>
                             </motion.div>
                           )
                         )}
@@ -292,13 +297,13 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                     {/* Hyper-Parameters Tuning */}
                     <div className="space-y-4">
                       <label className="flex items-center gap-2 text-xs text-cyan-500 font-mono tracking-wider uppercase">
-                        <Sliders className="w-3 h-3" /> 参数调优 / Parameter Tuning
+                        <Sliders className="w-3 h-3" /> {t('panel.paramTuning')}
                       </label>
 
                       <div className="grid grid-cols-2 gap-6 bg-black/20 p-4 rounded-xl border border-white/5">
                         <div className="space-y-3">
                           <div className="flex justify-between text-xs font-mono text-gray-400">
-                            <span>温度 / Temperature</span>
+                            <span>{t('panel.temperature')}</span>
                             <span className="text-cyan-400 bg-cyan-900/30 px-1.5 rounded">{config.temperature}</span>
                           </div>
                           <input
@@ -308,8 +313,8 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                             className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-cyan-400 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[0_0_10px_cyan]"
                           />
                           <div className="flex justify-between text-[9px] text-gray-600 font-mono">
-                            <span>精确 / PRECISE</span>
-                            <span>创造 / CREATIVE</span>
+                            <span>{t('panel.precise')}</span>
+                            <span>{t('panel.creative')}</span>
                           </div>
                         </div>
 
@@ -325,8 +330,8 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                             className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-cyan-400 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-[0_0_10px_cyan]"
                           />
                           <div className="flex justify-between text-[9px] text-gray-600 font-mono">
-                            <span>聚焦 / FOCUSED</span>
-                            <span>多样 / DIVERSE</span>
+                            <span>{t('panel.focused')}</span>
+                            <span>{t('panel.diverse')}</span>
                           </div>
                         </div>
                       </div>
@@ -341,35 +346,35 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                       <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full" />
                     </div>
                     <div className="text-center space-y-2 max-w-xs">
-                      <h3 className="text-lg font-mono text-red-400 font-bold">系统故障 / SYSTEM FAULT</h3>
+                      <h3 className="text-lg font-mono text-red-400 font-bold">{t('panel.systemFault')}</h3>
                       <div className="text-xs font-mono text-red-500/70 bg-red-950/30 p-4 rounded-lg border border-red-500/20 text-left space-y-1">
                         <div>[ERR_CODE: 0x503_VOICE_MOD]</div>
                         <div>&gt; Initializing Audio Driver... FAILED</div>
                         <div>&gt; Connecting to Neural TTS... TIMEOUT</div>
                         <div className="animate-pulse">&gt; CRITICAL: Audio hardware unreachable</div>
                       </div>
-                      <p className="text-[10px] font-mono text-gray-500 pt-2">该模块当前无法访问，请联系管理员修复。<br />Module currently inaccessible. Contact admin.</p>
+                      <p className="text-[10px] font-mono text-gray-500 pt-2">{t('panel.moduleInaccessible')}</p>
                     </div>
                   </div>
                 )}
 
                 {activeTab === 'persona' && (
                   <div className="space-y-4">
-                    <label className="text-xs text-cyan-500 font-mono tracking-wider uppercase">角色铭刻 / Character Imprint</label>
+                    <label className="text-xs text-cyan-500 font-mono tracking-wider uppercase">{t('panel.characterImprint')}</label>
                     <div className="space-y-2">
                       <textarea
                         value={config.systemPrompt}
                         onChange={(e) => setConfig({ ...config, systemPrompt: e.target.value })}
                         className="w-full h-48 bg-black/40 border border-white/10 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none focus:border-cyan-500/50 resize-none leading-relaxed"
-                        placeholder="��此输入系统提示词指令... / Enter system prompt instructions here..."
+                        placeholder={t('panel.systemPromptPlaceholder')}
                       />
                       <div className="flex justify-end">
-                        <span className="text-[9px] text-gray-500 font-mono">预估 Token / TOKEN_COUNT_EST: {config.systemPrompt ? Math.ceil(config.systemPrompt.length / 4) : 0}</span>
+                        <span className="text-[9px] text-gray-500 font-mono">{t('panel.tokenCount')}: {config.systemPrompt ? Math.ceil(config.systemPrompt.length / 4) : 0}</span>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-2 pt-4 border-t border-white/5">
-                      <label className="text-[10px] text-gray-500 font-mono uppercase">快速预设 / Quick Presets</label>
+                      <label className="text-[10px] text-gray-500 font-mono uppercase">{t('panel.quickPresets')}</label>
                       {PRESET_CHARACTERS.map(char => (
                         <button
                           key={char.id}
@@ -389,17 +394,15 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
                     <div className="p-4 bg-purple-500/5 border border-purple-500/20 rounded-xl">
                       <div className="flex items-center gap-3 mb-2">
                         <Database className="w-5 h-5 text-purple-400" />
-                        <div className="font-mono text-sm text-purple-200">私有云同步 / Private Cloud Sync</div>
+                        <div className="font-mono text-sm text-purple-200">{t('panel.privateCloud')}</div>
                       </div>
                       <p className="text-[10px] text-purple-400/60 leading-relaxed">
-                        将记忆向量同步到外部 PostgreSQL 实例。
-                        <br />
-                        Synchronize memory vectors to external PostgreSQL instance.
+                        {t('panel.cloudDesc')}
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase text-gray-500 font-mono">同步服务器 URL / SYNC SERVER URL</label>
+                      <label className="text-[10px] uppercase text-gray-500 font-mono">{t('panel.syncServerUrl')}</label>
                       <Input
                         value={config.syncServerUrl}
                         onChange={(e) => setConfig({ ...config, syncServerUrl: e.target.value })}
@@ -410,8 +413,64 @@ export function ConfigPanel({ isOpen, onClose, config: initialConfig, onSave }: 
 
                     <div className="pt-4 flex justify-end">
                       <Button className="bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs">
-                        <RefreshCw className="w-3 h-3 mr-2" /> 立即同步 / Sync Now
+                        <RefreshCw className="w-3 h-3 mr-2" /> {t('panel.syncNow')}
                       </Button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'appearance' && (
+                  <div className="space-y-6">
+                    <div className="p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-xl">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Palette className="w-5 h-5 text-cyan-400" />
+                        <div className="font-mono text-sm text-cyan-200">{t('panel.appearance.title')}</div>
+                      </div>
+                      <p className="text-[10px] text-cyan-400/60 leading-relaxed">
+                        {t('panel.appearance.desc')}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Cube Theme */}
+                      <button
+                        onClick={() => onVisualThemeChange?.('cube')}
+                        className={`p-5 rounded-xl border text-left transition-all ${visualTheme === 'cube'
+                          ? 'border-cyan-500/50 bg-cyan-500/10 shadow-[0_0_20px_rgba(34,211,238,0.15)]'
+                          : 'border-white/10 bg-white/5 hover:border-white/20'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="p-2 bg-black/40 rounded-lg border border-white/10">
+                            <Box className="w-5 h-5 text-cyan-400" />
+                          </div>
+                          {visualTheme === 'cube' && (
+                            <span className="text-[9px] font-mono bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded">{t('panel.appearance.title')}</span>
+                          )}
+                        </div>
+                        <div className="font-mono text-xs text-gray-200 mb-1">{t('panel.appearance.cube')}</div>
+                        <div className="text-[10px] text-gray-500 leading-relaxed">{t('panel.appearance.cubeDesc')}</div>
+                      </button>
+
+                      {/* Globe Theme */}
+                      <button
+                        onClick={() => onVisualThemeChange?.('globe')}
+                        className={`p-5 rounded-xl border text-left transition-all ${visualTheme === 'globe'
+                          ? 'border-cyan-500/50 bg-cyan-500/10 shadow-[0_0_20px_rgba(34,211,238,0.15)]'
+                          : 'border-white/10 bg-white/5 hover:border-white/20'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="p-2 bg-black/40 rounded-lg border border-white/10">
+                            <Globe className="w-5 h-5 text-cyan-400" />
+                          </div>
+                          {visualTheme === 'globe' && (
+                            <span className="text-[9px] font-mono bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded">{t('panel.appearance.title')}</span>
+                          )}
+                        </div>
+                        <div className="font-mono text-xs text-gray-200 mb-1">{t('panel.appearance.globe')}</div>
+                        <div className="text-[10px] text-gray-500 leading-relaxed">{t('panel.appearance.globeDesc')}</div>
+                      </button>
                     </div>
                   </div>
                 )}

@@ -1,14 +1,42 @@
 import { motion } from 'motion/react';
 import React from 'react';
-const globeImage = '/placeholder.jpg';
+
+/**
+ * 3D visual theme: holographic globe.
+ *
+ * Props are compatible with CubeVisual so the main stage can swap
+ * between <CubeVisual /> and <GlobeVisual /> without adapter code.
+ * Unknown states fall back to 'idle'.
+ */
+type VisualState = 'idle' | 'listening' | 'processing' | 'speaking' | 'loading_tts';
 
 interface GlobeVisualProps {
-  state: 'idle' | 'listening' | 'speaking';
+  state: VisualState;
+  onClick?: () => void;
+  /** Reserved for parity with CubeVisual; currently unused. */
+  analyserNode?: AnalyserNode | null;
 }
 
-export const GlobeVisual = React.memo(function GlobeVisual({ state }: GlobeVisualProps) {
+const globeImage = '/placeholder.jpg';
+
+const stateColor: Record<VisualState, string> = {
+  idle: 'rgba(6, 182, 212, 0.4)',       // Cyan
+  listening: 'rgba(239, 68, 68, 0.6)',  // Red
+  processing: 'rgba(168, 85, 247, 0.7)', // Purple
+  speaking: 'rgba(34, 197, 94, 0.6)',   // Green
+  loading_tts: 'rgba(234, 179, 8, 0.6)', // Yellow
+};
+
+export const GlobeVisual = React.memo(function GlobeVisual({ state, onClick }: GlobeVisualProps) {
+  const glow = stateColor[state] ?? stateColor.idle;
+
   return (
-    <div className="relative flex items-center justify-center">
+    <motion.div
+      className="relative w-72 h-72 flex items-center justify-center cursor-grab active:cursor-grabbing"
+      role="button"
+      aria-label={`Globe visual core, state: ${state}`}
+      onTap={onClick}
+    >
       {/* Outer Holographic Rings */}
       <motion.div
         className="absolute inset-0 border border-cyan-500/30 rounded-full"
@@ -31,9 +59,10 @@ export const GlobeVisual = React.memo(function GlobeVisual({ state }: GlobeVisua
 
       {/* Glow Effect */}
       <motion.div
-        className="absolute inset-0 bg-cyan-500/20 rounded-full blur-2xl"
+        className="absolute inset-0 rounded-full blur-2xl"
+        style={{ backgroundColor: glow }}
         animate={{
-          opacity: state === 'speaking' ? [0.2, 0.5, 0.2] : 0.2,
+          opacity: state === 'speaking' ? [0.2, 0.5, 0.2] : 0.25,
           scale: state === 'speaking' ? [0.8, 1.1, 0.8] : 1,
         }}
         transition={{ duration: 2, repeat: Infinity }}
@@ -65,6 +94,6 @@ export const GlobeVisual = React.memo(function GlobeVisual({ state }: GlobeVisua
         animate={{ top: ['0%', '100%', '0%'] }}
         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
       />
-    </div>
+    </motion.div>
   );
 });

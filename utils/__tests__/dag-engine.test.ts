@@ -51,7 +51,7 @@ describe('DAGEngine', () => {
       expect(result.error).toContain('Cycle');
     });
 
-    it('should block audio_synth nodes (system fault)', () => {
+    it('should allow audio_synth nodes', () => {
       const graph = buildGraph(
         [
           { id: 'a', type: 'text_input', label: 'A', config: {} },
@@ -63,8 +63,7 @@ describe('DAGEngine', () => {
       );
       const engine = new DAGEngine(graph);
       const result = engine.validate();
-      expect(result.valid).toBe(false);
-      expect(result.error).toContain('Fault');
+      expect(result.valid).toBe(true);
     });
 
     it('should validate a diamond-shaped DAG', () => {
@@ -135,6 +134,26 @@ describe('DAGEngine', () => {
       for (const id of nodeIds) {
         expect(completedLogs.some(l => l.nodeId === id)).toBe(true);
       }
+    });
+
+    it('should execute a workflow containing audio_synth node', async () => {
+      const graph = buildGraph(
+        [
+          { id: 'a', type: 'text_input', label: 'A', config: { value: 'hello' } },
+          { id: 'b', type: 'audio_synth', label: 'Voice', config: {} },
+          { id: 'c', type: 'output', label: 'C', config: {} },
+        ],
+        [
+          { id: 'e1', source: 'a', target: 'b' },
+          { id: 'e2', source: 'b', target: 'c' },
+        ]
+      );
+      const engine = new DAGEngine(graph);
+      const result = await engine.execute();
+      expect(result.success).toBe(true);
+      // audio_synth node should have produced an audio output
+      const voiceLog = result.logs.find(l => l.nodeId === 'b' && l.status === 'completed');
+      expect(voiceLog?.output).toContain('data:audio/mp3');
     });
 
     it('should fail on cycle detection before execution', async () => {

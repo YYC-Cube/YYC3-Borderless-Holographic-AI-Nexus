@@ -112,6 +112,8 @@ export const CubeVisual = React.memo(function CubeVisual({ state, onClick, analy
   return (
     <motion.div
       className="relative w-72 h-72 flex items-center justify-center perspective-1000 cursor-grab active:cursor-grabbing"
+      role="button"
+      aria-label={`Cube visual core, state: ${state}`}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       onTap={onClick}
